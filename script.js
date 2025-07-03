@@ -22,59 +22,53 @@ document.addEventListener('DOMContentLoaded', function() {
         this.classList.remove('active');
     });
     
+
+    
+    let isProcessing = false;
+    let selectedFile = null;
+
+    // 文件选择处理
+    function handleFileSelect() {
+        if (fileInput.files.length > 0) {
+            selectedFile = fileInput.files[0];
+            uploadArea.querySelector('h3').textContent = `已选择: ${selectedFile.name}`;
+            uploadArea.querySelector('p').textContent = '点击"开始处理"按钮上传';
+            
+            // 重置按钮状态
+            uploadBtn.innerHTML = '<i class="fas fa-upload"></i> 开始处理';
+            uploadBtn.style.background = 'linear-gradient(45deg, #00b4db, #0083b0)';
+            uploadBtn.disabled = false;
+        }
+    }
+
+    // 上传处理
+    function handleFileUpload() {
+        if (!selectedFile || isProcessing) return;
+        
+        isProcessing = true;
+        uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 处理中...';
+        uploadBtn.disabled = true;
+        
+        setTimeout(() => {
+            isProcessing = false;
+            // 处理完成逻辑
+        }, 3000);
+    }
+    // 修改事件监听
+    fileInput.addEventListener('change', handleFileSelect);
+    uploadBtn.addEventListener('click', handleFileUpload);
+
+    // 拖拽逻辑调整
     uploadArea.addEventListener('drop', function(e) {
         e.preventDefault();
         this.classList.remove('active');
         
         if (e.dataTransfer.files.length) {
             fileInput.files = e.dataTransfer.files;
-            handleFileUpload();
+            handleFileSelect(); // 仅更新UI
         }
     });
-    
-    // 文件选择变化
-    fileInput.addEventListener('change', handleFileUpload);
-    
-    // 处理文件上传
-    function handleFileUpload() {
-        if (fileInput.files.length > 0) {
-            const fileName = fileInput.files[0].name;
-            uploadArea.querySelector('h3').textContent = `已选择: ${fileName}`;
-            uploadArea.querySelector('p').innerHTML = '文件已准备就绪<br>点击"开始处理视频"按钮上传';
-            
-            // 模拟处理效果
-            uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 处理中...';
-            uploadBtn.disabled = true;
-            
-            setTimeout(() => {
-                uploadBtn.innerHTML = '<i class="fas fa-check"></i> 处理完成';
-                uploadBtn.style.background = 'linear-gradient(45deg, #00c853, #009624)';
-                
-                // 更新播放器状态
-                document.querySelector('.video-placeholder h2').textContent = fileName;
-                document.querySelector('.video-placeholder p').innerHTML = '视频已准备好播放';
-                document.querySelector('.video-placeholder i').className = 'fas fa-film';
-                
-                // 模拟播放时间
-                timeDisplay.textContent = '00:00 / 34:25';
-                
-                // 启用控制按钮
-                playBtn.style.background = 'rgba(100, 255, 218, 0.3)';
-                pauseBtn.style.background = 'rgba(100, 255, 218, 0.3)';
-                stopBtn.style.background = 'rgba(100, 255, 218, 0.3)';
-            }, 3000);
-        }
-    }
-    
-    // 上传按钮点击事件
-    uploadBtn.addEventListener('click', function() {
-        if (!fileInput.files.length) {
-            alert('请先选择视频文件');
-            return;
-        }
-        handleFileUpload();
-    });
-    
+
     // 控制按钮事件
     playBtn.addEventListener('click', function() {
         timeDisplay.textContent = '02:42 / 34:25';
@@ -90,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
         timeDisplay.textContent = '已停止 | 00:00 / 34:25';
         timeDisplay.style.color = '#ff5252';
     });
-    // ===== 新增的定位功能交互代码 =====
+
 const positioningOptions = document.querySelectorAll('.positioning-option');
 
 positioningOptions.forEach(option => {
